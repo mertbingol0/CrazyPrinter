@@ -1,23 +1,27 @@
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
+from allowed_files import allowed_file
+import os
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'imgs'
 
-@app.route('/upload')
-def upload_file():
-    return render_template('file_upload.html')
-
-@app.route('/uploader', methods = ['GET', 'POST'])
-def upload_filea():
+@app.route('/upload', methods = ['GET', 'POST'])
+def main_page():
     if request.method == 'POST':
-        f = request.files['file']
-        f.save(secure_filename(f.filename))
-        return "succesfuly for this func"
-        
-'''
-f.filename ile upload edilen dosya name'i alinir.
-Bunu kullanarak aldigimiz dosya adini 'lp {f.filename} gibi bir isleme sokmamiz gerekiyor.
-'''
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # File uzantisinin kontrolu ve yuklenmesi
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return 'File is succesfuly uploaded.'
+            os.system('lp imgs/', filename)     
+        else:
+            return 'Invalid file extension.' 
+    elif request.method == 'GET':
+        return render_template('file_upload.html')
+    else:
+        return 'invalid request methods'
 
 if __name__ == '__main__':
    app.run(debug = True)
