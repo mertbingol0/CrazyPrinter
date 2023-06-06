@@ -4,7 +4,7 @@ from allowed_files import allowed_file
 import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'imgs'
+app.config['UPLOAD_FOLDER'] = '/tmp'
 
 @app.route('/upload', methods = ['GET', 'POST'])
 def main_page():
@@ -14,8 +14,11 @@ def main_page():
             filename = secure_filename(file.filename)
             # File uzantisinin kontrolu ve yuklenmesi
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return 'File is succesfuly uploaded.'
-            os.system('lp imgs/', filename)     
+            os.system(f'lp {os.path.join(app.config["UPLOAD_FOLDER"], filename)}')
+            return 'File is successfully uploaded and sent to printer.'
+            test = 'lp imgs/'
+            lp_command = test + filename
+            os.system(lp_command)
         else:
             return 'Invalid file extension.' 
     elif request.method == 'GET':
